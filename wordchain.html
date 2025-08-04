@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.95">
+    <title>Word Chain | Vocabulary Challenge Game</title>
+    <link rel="icon" href="favicon-32x32.png" type="image/png" sizes="32x32">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bungee&display=swap');
+       
+        :root {
+            --primary: #2C3E50;
+            --secondary: #3498DB;
+            --accent: #E74C3C;
+            --light: #ECF0F1;
+            --dark: #2C3E50;
+            --success: #2ECC71;
+            --warning: #F39C12;
+            --text-light: #FFFFFF;
+            --text-dark: #333333;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+       
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+       
+        body {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transform: scale(0.95);
+            transform-origin: center top;
+            width: 100%;
+            padding-top: 5px;
+            font-weight: 600.2;
+        }
+       
+        /* Game Container */
+        .game-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            min-height: 90vh;
+        }
+       
+        /* Header */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 10px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+       
+        .game-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+       
+        .logo-circle {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3498DB, #2ECC71);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .logo-letters {
+            font-family: 'Bungee', cursive;
+            font-size: 22.2px;
+            font-weight: 800;
+            color: white;
+        }
+       
+        .game-logo-text {
+            font-size: 32.2px;
+            font-weight: 800;
+            color: var(--text-light);
+            letter-spacing: 1px;
+            font-family: 'Bungee', cursive;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #f3ec78, #af4261);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Legal Links */
+        .legal-links {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .legal-links a {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .legal-links a:hover {
+            color: var(--text-light);
+            text-decoration: underline;
+        }
+       
+        /* Professional Score Board */
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+       
+        .stat-item {
+            text-align: center;
+            padding: 0 12px;
+            position: relative;
+        }
+       
+        .stat-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 35px;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+       
+        .stat-label {
+            font-size: 14.2px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 3px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+       
+        .stat-value {
+            font-size: 28.2px;
+            font-weight: 800;
+            color: var(--text-light);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+       
+        .timer .stat-value {
+            color: var(--warning);
+        }
+       
+        .score .stat-value {
+            color: var(--success);
+        }
+       
+        .best .stat-value {
+            color: var(--accent);
+        }
+       
+        /* Game Area */
+        .game-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 0;
+        }
+       
+        /* Word Chain */
+        .word-chain-container {
+            width: 100%;
+            min-height: 70px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+       
+        .word-chain-container::-webkit-scrollbar {
+            display: none;
+        }
+       
+        .word-chain {
+            display: inline-flex;
+            gap: 10px;
+            height: 100%;
+            align-items: center;
+        }
+       
+        .word-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 8px 15px;
+            color: white;
+            font-size: 20.2px;
+            font-weight: 700;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+       
+        .word-item:last-child {
+            background: rgba(46, 204, 113, 0.2);
+            border-color: var(--success);
+            animation: highlight 1.5s infinite alternate;
+        }
+       
+        @keyframes highlight {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-3px); }
+        }
+       
+        /* Current Letter */
+        .current-letter-container {
+            margin: 15px 0;
+            text-align: center;
+        }
+       
+        .current-letter-label {
+            font-size: 16.2px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+       
+        .current-letter {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 75px;
+            height: 75px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 50%;
+            font-size: 40.2px;
+            font-weight: 900;
+            color: var(--warning);
+            box-shadow: 0 0 20px rgba(243, 156, 18, 0.3);
+            border: 3px solid var(--warning);
+            animation: pulse 1.5s infinite alternate;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+       
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 10px rgba(243, 156, 18, 0.3); }
+            100% { transform: scale(1.05); box-shadow: 0 0 30px rgba(243, 156, 18, 0.5); }
+        }
+       
+        /* Message */
+        .message {
+            font-size: 18.2px;
+            font-weight: 700;
+            padding: 10px 20px;
+            border-radius: 30px;
+            margin: 15px 0;
+            background: rgba(255, 255, 255, 0.1);
+            transition: var(--transition);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+       
+        .message.success {
+            background: rgba(46, 204, 113, 0.2);
+            color: var(--success);
+        }
+       
+        .message.error {
+            background: rgba(231, 76, 60, 0.2);
+            color: var(--accent);
+        }
+       
+        /* Input */
+        .input-container {
+            width: 100%;
+            max-width: 500px;
+            margin: 15px 0 20px;
+            position: relative;
+        }
+       
+        .word-input {
+            width: 100%;
+            padding: 14px 20px;
+            font-size: 18.2px;
+            font-weight: 700;
+            border: none;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            outline: none;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+       
+        .word-input:focus {
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
+        }
+       
+        .word-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 600;
+        }
+       
+        /* Keyboard */
+        .keyboard {
+            width: 100%;
+            max-width: 600px;
+            margin: 15px auto;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            display: none;
+        }
+       
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 6px;
+        }
+       
+        .key {
+            min-width: 36px;
+            height: 45px;
+            margin: 0 3px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 6px;
+            font-size: 16.2px;
+            font-weight: 800;
+            color: var(--dark);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+       
+        .key:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+       
+        .key:active {
+            transform: translateY(0);
+        }
+       
+        .key.special {
+            background: var(--primary);
+            color: white;
+            font-size: 14.2px;
+        }
+       
+        /* Action Button */
+        .action-container {
+            margin-top: 15px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+       
+        .action-button {
+            padding: 14px 35px;
+            font-size: 16.2px;
+            font-weight: 800;
+            border: none;
+            border-radius: 50px;
+            background: var(--success);
+            color: white;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+       
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+        }
+       
+        .action-button.exit {
+            background: var(--accent);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+       
+        .action-button.exit:hover {
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+        }
+       
+        /* Game Over Popup */
+        .game-over-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+       
+        .game-over-popup.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+       
+        .game-over-content {
+            background: linear-gradient(135deg, var(--primary), var(--dark));
+            border-radius: 16px;
+            padding: 35px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transform: scale(0.9);
+            transition: all 0.3s ease;
+        }
+       
+        .game-over-popup.show .game-over-content {
+            transform: scale(1);
+        }
+       
+        .game-over-title {
+            font-size: 30.2px;
+            font-weight: 900;
+            color: var(--warning);
+            margin-bottom: 18px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+       
+        .game-over-score {
+            font-size: 22.2px;
+            font-weight: 800;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 8px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+       
+        .game-over-score-value {
+            font-size: 48.2px;
+            font-weight: 900;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            text-shadow: 0 3px 6px rgba(0,0,0,0.3);
+        }
+       
+        .new-high-score {
+            font-size: 22.2px;
+            font-weight: 800;
+            color: var(--success);
+            margin-bottom: 20px;
+            animation: glow 1.5s infinite alternate;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+       
+        @keyframes glow {
+            0% { opacity: 0.8; text-shadow: 0 0 5px var(--success); }
+            100% { opacity: 1; text-shadow: 0 0 20px var(--success); }
+        }
+       
+        .game-over-instruction {
+            font-size: 15.2px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.9);
+            font-style: italic;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+        }
+       
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .game-header {
+                flex-direction: column;
+                gap: 12px;
+            }
+           
+            .score-board {
+                flex-wrap: wrap;
+                gap: 12px;
+                justify-content: center;
+            }
+           
+            .stat-item {
+                padding: 0 10px;
+            }
+           
+            .stat-item:not(:last-child)::after {
+                display: none;
+            }
+           
+            .word-item {
+                font-size: 18.2px;
+                padding: 7px 12px;
+            }
+           
+            .current-letter {
+                width: 65px;
+                height: 65px;
+                font-size: 32.2px;
+            }
+           
+            .keyboard {
+                display: block;
+            }
+            
+            .game-logo-text {
+                font-size: 28.2px;
+            }
+            
+            .logo-circle {
+                width: 38px;
+                height: 38px;
+            }
+            
+            .logo-letters {
+                font-size: 18.2px;
+            }
+
+            .legal-links {
+                bottom: 5px;
+                right: 5px;
+                gap: 10px;
+            }
+        }
+       
+        @media (max-width: 480px) {
+            .game-logo-text {
+                font-size: 24.2px;
+            }
+           
+            .stat-label {
+                font-size: 12.2px;
+            }
+           
+            .stat-value {
+                font-size: 20.2px;
+            }
+           
+            .word-input {
+                font-size: 16.2px;
+                padding: 12px 18px;
+            }
+           
+            .key {
+                min-width: 28px;
+                height: 40px;
+                font-size: 14.2px;
+                margin: 0 2px;
+            }
+           
+            .game-over-title {
+                font-size: 26.2px;
+            }
+           
+            .game-over-score-value {
+                font-size: 40.2px;
+            }
+            
+            .logo-circle {
+                width: 32px;
+                height: 32px;
+            }
+            
+            .logo-letters {
+                font-size: 16.2px;
+            }
+
+            .legal-links {
+                flex-direction: column;
+                align-items: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Game Header -->
+        <div class="game-header">
+            <div class="game-logo">
+                <div class="logo-circle">
+                    <div class="logo-letters">WC</div>
+                </div>
+                <span class="game-logo-text">WORD CHAIN</span>
+            </div>
+        </div>
+       
+        <!-- Professional Score Board -->
+        <div class="score-board">
+            <div class="stat-item timer">
+                <div class="stat-label">Time Left</div>
+                <div class="stat-value" id="time-left">60</div>
+            </div>
+            <div class="stat-item score">
+                <div class="stat-label">Your Score</div>
+                <div class="stat-value" id="score">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Words</div>
+                <div class="stat-value" id="word-count">0</div>
+            </div>
+            <div class="stat-item best">
+                <div class="stat-label">Best</div>
+                <div class="stat-value" id="high-score">0</div>
+            </div>
+        </div>
+       
+        <!-- Game Area -->
+        <div class="game-area">
+            <!-- Word Chain -->
+            <div class="word-chain-container">
+                <div class="word-chain" id="word-chain"></div>
+            </div>
+           
+            <!-- Current Letter -->
+            <div class="current-letter-container">
+                <div class="current-letter-label">Current Letter</div>
+                <div class="current-letter" id="current-letter">-</div>
+            </div>
+           
+            <!-- Message -->
+            <div class="message" id="message">Please press the start button to begin</div>
+           
+            <!-- Input Field -->
+            <div class="input-container">
+                <input type="text" class="word-input" id="word-input" placeholder="Type your word..." autocomplete="off" disabled>
+            </div>
+           
+            <!-- Keyboard (mobile only) -->
+            <div class="keyboard" id="keyboard">
+                <div class="keyboard-row">
+                    <div class="key">Q</div>
+                    <div class="key">W</div>
+                    <div class="key">E</div>
+                    <div class="key">R</div>
+                    <div class="key">T</div>
+                    <div class="key">Y</div>
+                    <div class="key">U</div>
+                    <div class="key">I</div>
+                    <div class="key">O</div>
+                    <div class="key">P</div>
+                </div>
+                <div class="keyboard-row">
+                    <div class="key">A</div>
+                    <div class="key">S</div>
+                    <div class="key">D</div>
+                    <div class="key">F</div>
+                    <div class="key">G</div>
+                    <div class="key">H</div>
+                    <div class="key">J</div>
+                    <div class="key">K</div>
+                    <div class="key">L</div>
+                </div>
+                <div class="keyboard-row">
+                    <div class="key">Z</div>
+                    <div class="key">X</div>
+                    <div class="key">C</div>
+                    <div class="key">V</div>
+                    <div class="key">B</div>
+                    <div class="key">N</div>
+                    <div class="key">M</div>
+                    <div class="key special">⌫</div>
+                    <div class="key special">ENTER</div>
+                </div>
+            </div>
+           
+            <!-- Action Button -->
+            <div class="action-container">
+                <button class="action-button" id="action-button">START GAME</button>
+            </div>
+        </div>
+    </div>
+   
+    <!-- Legal Links -->
+    <div class="legal-links">
+        <a href="privacy.html" target="_blank">Privacy Policy</a>
+        <a href="terms.html" target="_blank">Terms</a>
+    </div>
+    <div style="position:fixed; bottom:10px; left:10px; color:rgba(255,255,255,0.5); font-size:12px;">
+    © 2025 Vineethpal. All rights reserved.
+</div>
+<!-- Cookie Consent Banner + JS -->
+    <div id="cookie-consent" style="display:none; position:fixed; bottom:0; left:0; right:0; background:var(--primary); color:white; padding:15px; text-align:center; z-index:1000; border-top:1px solid var(--secondary); font-family:'Poppins', sans-serif;">
+        <p>We use localStorage to save your high score. By continuing, you consent to this storage.</p>
+        <button id="accept-cookies" style="background:var(--success); color:white; border:none; padding:8px 20px; border-radius:50px; margin:0 10px; cursor:pointer; font-family:'Poppins', sans-serif;">Accept</button>
+        <button id="decline-cookies" style="background:var(--accent); color:white; border:none; padding:8px 20px; border-radius:50px; margin:0 10px; cursor:pointer; font-family:'Poppins', sans-serif;">Decline</button>
+    </div>
+
+    <!-- Background Music -->
+    <audio id="game-music" loop>
+      <source src="funky.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+    // Cookie Consent
+    (function() {
+        if (!localStorage.getItem('cookieConsent')) {
+            document.getElementById('cookie-consent').style.display = 'block';
+        }
+        
+        document.getElementById('accept-cookies').addEventListener('click', function() {
+            localStorage.setItem('cookieConsent', 'true');
+            document.getElementById('cookie-consent').style.display = 'none';
+        });
+        
+        document.getElementById('decline-cookies').addEventListener('click', function() {
+            localStorage.clear();
+            document.getElementById('cookie-consent').style.display = 'none';
+            location.reload();
+        });
+    })();
+    </script>
+    <!-- Game Over Popup -->
+    <div class="game-over-popup" id="game-over-popup">
+        <div class="game-over-content">
+            <div class="game-over-title">GAME OVER</div>
+            <div class="game-over-score">Your Score:</div>
+            <div class="game-over-score-value" id="final-score">0</div>
+            <div class="new-high-score" id="new-high-score" style="display: none;">NEW HIGH SCORE!</div>
+            <div class="game-over-instruction">Click anywhere to play again</div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        const gameState = {
+            wordChain: [],
+            score: 0,
+            timeLeft: 60,
+            currentLetter: '-',
+            isChecking: false,
+            gameOver: false,
+            newHighScore: false,
+            gameStarted: false,
+            highScore: 0,
+            timer: null,
+            lastTickTime: null,
+            maxVisibleWords: 7
+        };
+
+        // Music control functions
+        function playGameMusic() {
+            const music = document.getElementById('game-music');
+            music.volume = 0.3; // 30% volume
+            music.play().catch(e => console.log("Music play prevented:", e));
+        }
+
+        function stopGameMusic() {
+            const music = document.getElementById('game-music');
+            music.pause();
+            music.currentTime = 0;
+        }
+       
+        // DOM Elements
+        const elements = {
+            wordInput: document.getElementById('word-input'),
+            wordChain: document.getElementById('word-chain'),
+            timeLeft: document.getElementById('time-left'),
+            score: document.getElementById('score'),
+            wordCount: document.getElementById('word-count'),
+            highScore: document.getElementById('high-score'),
+            currentLetter: document.getElementById('current-letter'),
+            message: document.getElementById('message'),
+            actionButton: document.getElementById('action-button'),
+            gameOverPopup: document.getElementById('game-over-popup'),
+            finalScore: document.getElementById('final-score'),
+            newHighScore: document.getElementById('new-high-score'),
+            keyboard: document.getElementById('keyboard')
+        };
+       
+        // Initialize the game
+        function initGame() {
+            loadHighScore();
+            setupEventListeners();
+            updateUI();
+           
+            // Hide keyboard on desktop
+            if (window.innerWidth >= 768) {
+                elements.keyboard.style.display = 'none';
+            } else {
+                elements.keyboard.style.display = 'block';
+            }
+        }
+       
+        // Load high score from localStorage
+        function loadHighScore() {
+            const savedHighScore = localStorage.getItem('wordChainHighScore');
+            if (savedHighScore) {
+                gameState.highScore = parseInt(savedHighScore);
+                elements.highScore.textContent = gameState.highScore;
+            }
+        }
+       
+        // Save high score to localStorage
+        function saveHighScore() {
+            localStorage.setItem('wordChainHighScore', gameState.highScore.toString());
+        }
+       
+        // Start the game timer
+        function startTimer() {
+            gameState.lastTickTime = new Date();
+            gameState.timer = setInterval(() => {
+                const now = new Date();
+                const elapsed = (now - gameState.lastTickTime) / 1000;
+               
+                if (elapsed >= 1) {
+                    gameState.lastTickTime = now;
+                    if (gameState.timeLeft > 0) {
+                        gameState.timeLeft--;
+                        updateUI();
+                    } else {
+                        endGame();
+                        clearInterval(gameState.timer);
+                    }
+                }
+            }, 100);
+        }
+       
+        // Add time to the clock
+        function addTime(seconds) {
+            gameState.timeLeft += seconds;
+            updateUI();
+        }
+       
+        // Submit a word
+        async function submitWord(word) {
+            if (!word || gameState.isChecking || gameState.timeLeft <= 0 || gameState.gameOver || !gameState.gameStarted) {
+                return;
+            }
+           
+            gameState.isChecking = true;
+            elements.message.textContent = "Checking your word...";
+            updateUI();
+           
+            // Check if word is already used
+            if (gameState.wordChain.some(w => w.toLowerCase() === word.toLowerCase())) {
+                showMessage('❌ Word already used!', 'error');
+                gameState.isChecking = false;
+                elements.wordInput.value = '';
+                return;
+            }
+           
+            // Validate word structure
+            if (word.length < 2) {
+                showMessage('❌ Word must be at least 2 letters!', 'error');
+                gameState.isChecking = false;
+                elements.wordInput.value = '';
+                return;
+            }
+           
+            if (gameState.wordChain.length > 0 && 
+                word[0].toLowerCase() !== gameState.wordChain[gameState.wordChain.length - 1].slice(-1).toLowerCase()) {
+                const lastLetter = gameState.wordChain[gameState.wordChain.length - 1].slice(-1).toUpperCase();
+                showMessage(`❌ Word must start with "${lastLetter}"`, 'error');
+                gameState.isChecking = false;
+                elements.wordInput.value = '';
+                return;
+            }
+           
+            // Check if word exists in dictionary
+            try {
+                const isValid = await isValidWord(word);
+                if (!isValid) {
+                    showMessage('❌ Not a valid word!', 'error');
+                    gameState.isChecking = false;
+                    elements.wordInput.value = '';
+                    return;
+                }
+               
+                // Calculate time bonus
+                const timeBonus = word.length + (word.length > 8 ? 10 : 0);
+               
+                gameState.timeLeft += timeBonus;
+                gameState.score += word.length;
+                gameState.wordChain.push(word);
+                gameState.currentLetter = word.slice(-1).toUpperCase();
+                showMessage(`✅ Correct! +${timeBonus} seconds`, 'success');
+                gameState.isChecking = false;
+                elements.wordInput.value = '';
+               
+                if (gameState.score > gameState.highScore) {
+                    gameState.highScore = gameState.score;
+                    saveHighScore();
+                }
+               
+                updateWordChainDisplay();
+                updateUI();
+               
+            } catch (error) {
+                showMessage('❌ Error checking word', 'error');
+                gameState.isChecking = false;
+                updateUI();
+            }
+        }
+       
+        // Show message with style
+        function showMessage(text, type) {
+            elements.message.textContent = text;
+            elements.message.className = 'message';
+            if (type) {
+                elements.message.classList.add(type);
+            }
+        }
+       
+        // Check if word is valid using dictionary API
+        async function isValidWord(word) {
+            try {
+                const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word.toLowerCase())}`);
+                return response.ok;
+            } catch (error) {
+                console.error('Dictionary API error:', error);
+                return false;
+            }
+        }
+       
+        // End the game
+        function endGame() {
+            clearInterval(gameState.timer);
+            stopGameMusic(); // Stop music when game ends
+            showMessage(`Game Over! Final Score: ${gameState.score}`);
+            gameState.currentLetter = '⌛';
+            gameState.gameOver = true;
+            gameState.gameStarted = false;
+            gameState.newHighScore = gameState.score > gameState.highScore;
+           
+            if (gameState.newHighScore) {
+                gameState.highScore = gameState.score;
+                saveHighScore();
+            }
+           
+            showGameOverPopup();
+            updateUI();
+        }
+       
+        // Start a new game
+        function startGame() {
+            gameState.gameStarted = true;
+            playGameMusic(); // Start music when game starts
+            gameState.gameOver = false;
+            gameState.currentLetter = '-';
+            gameState.wordChain = [];
+            gameState.score = 0;
+            gameState.timeLeft = 60;
+            gameState.newHighScore = false;
+            elements.wordInput.value = '';
+            elements.wordInput.disabled = false;
+            elements.message.textContent = "Type a random word";
+            elements.wordChain.innerHTML = ''; // Clear the word chain display
+           
+            startTimer();
+            elements.wordInput.focus();
+            updateUI();
+        }
+       
+        // Exit the current game
+        function exitGame() {
+            clearInterval(gameState.timer);
+            stopGameMusic(); // Stop music when exiting game
+            showMessage(`Game Ended! Score: ${gameState.score}`);
+            gameState.currentLetter = '⏸';
+            gameState.gameOver = true;
+            gameState.gameStarted = false;
+            gameState.newHighScore = gameState.score > gameState.highScore;
+           
+            if (gameState.newHighScore) {
+                gameState.highScore = gameState.score;
+                saveHighScore();
+            }
+           
+            showGameOverPopup();
+            updateUI();
+        }
+       
+        // Reset the game state
+        function resetGame() {
+            gameState.wordChain = [];
+            gameState.score = 0;
+            gameState.timeLeft = 60;
+            gameState.currentLetter = '-';
+            gameState.gameOver = false;
+            gameState.newHighScore = false;
+            gameState.gameStarted = false;
+            elements.wordInput.value = '';
+            elements.wordInput.disabled = true;
+            elements.message.textContent = 'Please press the start button to begin';
+            elements.wordChain.innerHTML = ''; // Clear the word chain display
+           
+            updateUI();
+        }
+       
+        // Handle action button click
+        function onButtonPressed() {
+            if (gameState.gameStarted) {
+                exitGame();
+            } else {
+                startGame();
+            }
+        }
+       
+        // Handle keyboard tap (for mobile)
+        function onKeyboardTap(letter) {
+            if (gameState.gameOver || !gameState.gameStarted) return;
+           
+            if (letter === '⌫') {
+                elements.wordInput.value = elements.wordInput.value.slice(0, -1);
+            } else if (letter === 'ENTER') {
+                submitWord(elements.wordInput.value);
+            } else {
+                elements.wordInput.value += letter.toLowerCase();
+            }
+        }
+       
+        // Update the UI based on game state
+        function updateUI() {
+            elements.timeLeft.textContent = gameState.timeLeft;
+            elements.score.textContent = gameState.score;
+            elements.wordCount.textContent = gameState.wordChain.length;
+            elements.highScore.textContent = gameState.highScore;
+            elements.currentLetter.textContent = gameState.currentLetter;
+           
+            // Update action button
+            elements.actionButton.textContent = gameState.gameStarted ? 'END GAME' : 'START GAME';
+            elements.actionButton.className = gameState.gameStarted ? 'action-button exit' : 'action-button';
+        }
+       
+        // Update the word chain display
+        function updateWordChainDisplay() {
+            elements.wordChain.innerHTML = '';
+           
+            // Only show the last few words
+            const startIndex = Math.max(0, gameState.wordChain.length - gameState.maxVisibleWords);
+            const visibleWords = gameState.wordChain.slice(startIndex);
+           
+            visibleWords.forEach((word, index) => {
+                const wordElement = document.createElement('div');
+                wordElement.className = 'word-item';
+                wordElement.textContent = word.toUpperCase();
+                elements.wordChain.appendChild(wordElement);
+            });
+           
+            // Scroll to show the newest words
+            elements.wordChain.scrollLeft = elements.wordChain.scrollWidth;
+        }
+       
+        // Show game over popup
+        function showGameOverPopup() {
+            elements.finalScore.textContent = gameState.score;
+            elements.newHighScore.style.display = gameState.newHighScore ? 'block' : 'none';
+           
+            elements.gameOverPopup.classList.add('show');
+           
+            // Click anywhere to close
+            elements.gameOverPopup.addEventListener('click', () => {
+                elements.gameOverPopup.classList.remove('show');
+                resetGame();
+            }, { once: true });
+        }
+       
+        // Set up event listeners
+        function setupEventListeners() {
+            // Word input submission
+            elements.wordInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    submitWord(elements.wordInput.value.trim());
+                }
+            });
+           
+            // Action button
+            elements.actionButton.addEventListener('click', onButtonPressed);
+           
+            // Keyboard keys (for mobile)
+            if (elements.keyboard) {
+                const keys = document.querySelectorAll('.key');
+                keys.forEach(key => {
+                    key.addEventListener('click', () => {
+                        onKeyboardTap(key.textContent);
+                    });
+                });
+            }
+           
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 768) {
+                    elements.keyboard.style.display = 'none';
+                } else {
+                    elements.keyboard.style.display = 'block';
+                }
+            });
+        }
+       
+        // Initialize the game when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
